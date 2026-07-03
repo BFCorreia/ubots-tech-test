@@ -281,7 +281,7 @@ export const Dashboard: React.FC = () => {
         title="Detalhes do Chamado"
       >
         {selectedTicket && (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-6">
             <div>
               <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Cliente</div>
               <div className="font-medium text-white">{selectedTicket.clientName}</div>
@@ -296,7 +296,7 @@ export const Dashboard: React.FC = () => {
                 <div className="text-white">{TEAM_NAMES[selectedTicket.team]}</div>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4 border-t border-[var(--color-border-subtle)] pt-4 mt-2">
+            <div className="grid grid-cols-3 gap-4 border-y border-[var(--color-border-subtle)] py-4">
               <div>
                 <div className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Criado em</div>
                 <div className="text-sm text-[var(--color-text-secondary)]">{new Date(selectedTicket.createdAt).toLocaleTimeString()}</div>
