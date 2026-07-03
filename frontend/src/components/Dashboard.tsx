@@ -52,6 +52,7 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
+    <>
     <div className="p-8 max-w-7xl mx-auto animate-slide-up">
       <header className="mb-10 flex justify-between items-end">
         <div>
@@ -258,6 +259,7 @@ export const Dashboard: React.FC = () => {
           </table>
         </div>
       </div>
+    </div>
       {/* Modals */}
       <Modal 
         isOpen={isSimulatorOpen} 
@@ -323,6 +325,6 @@ export const Dashboard: React.FC = () => {
           </div>
         )}
       </Modal>
-    </div>
+    </>
   );
 };
