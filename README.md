@@ -8,14 +8,25 @@ Este projeto é um teste técnico Full Stack para a FlowPay (fintech). Ele imple
 - Java 17+
 ### Como Executar o Projeto (Tudo em um Comando)
 1. Certifique-se de ter o Docker instalado e rodando em sua máquina.
-2. Na raiz do projeto, execute:
+2. Crie um arquivo `.env` na pasta `frontend` se quiser customizar as URLs (opcional, o padrão é `localhost`):
+   ```env
+   VITE_API_URL=http://localhost:8080/api
+   VITE_WS_URL=http://localhost:8080/ws
+   ```
+3. Na raiz do projeto, execute:
    `docker compose up -d --build`
-3. O Docker fará o build do Backend e Frontend e orquestrará a subida do banco de dados e mensageria.
-4. **Frontend (Dashboard):** Acesse `http://localhost:5173`
-5. **Backend Swagger (API Docs):** Acesse `http://localhost:8080/swagger-ui.html`
-6. **RabbitMQ Manager:** Acesse `http://localhost:15672` (Usuário: `flowpay_user` / Senha: `flowpay_password`).
+4. O Docker fará o build do Backend e Frontend e orquestrará a subida do banco de dados e mensageria.
+5. **Frontend (Dashboard):** Acesse `http://localhost:5173`
+6. **Backend Swagger (API Docs):** Acesse `http://localhost:8080/swagger-ui.html`
+7. **RabbitMQ Manager:** Acesse `http://localhost:15672` (Usuário: `flowpay_user` / Senha: `flowpay_password`).
 
 *Nota: Toda a infraestrutura foi conteinerizada com Docker. O STOMP WebSocket agora é servido através do consumo de eventos do RabbitMQ (Pub/Sub pattern).*
+
+### Como Rodar os Testes (Backend)
+O projeto usa **Testcontainers** para testes de integração fiéis ao banco de produção (PostgreSQL). Você não precisa subir nenhuma infraestrutura manualmente para testar o backend.
+
+1. Entre na pasta `backend`: `cd backend`
+2. Execute o comando: `mvn test` (O Testcontainers subirá um Postgres efêmero automaticamente).
 
 ---
 
@@ -30,8 +41,10 @@ O requisito mais crítico era: garantir a ordem FIFO da fila, respeitando a capa
 Optei por utilizar **Lock Pessimista no Banco de Dados** (`LockModeType.PESSIMISTIC_WRITE`) no método de despacho (`TicketDispatcherService`).
 - **Por que não Lock Otimista?** O lock otimista lançaria uma `OptimisticLockException` no caso de 2 atendimentos tentando alocar o mesmo atendente simultaneamente, o que exigiria a construção de lógicas complexas de Retry com Backoff. Como queremos respeitar a ordem exata da fila, o lock pessimista (`FOR UPDATE`) faz com que o banco naturalmente enfileire as transações no nível da linha, garantindo que o `dispatchNext` aconteça sequencialmente de forma perfeita sob concorrência, pegando o ticket mais antigo que ainda é `WAITING`.
 
-### 3. TDD - Test-Driven Development
-A regra principal de fila e despacho (`TicketDispatcherService`) foi construída com TDD estrito. Os testes comprovaram, antes mesmo do código de produção existir, que o comportamento seria: (1) atribuição imediata caso o atendente estivesse disponível e (2) o respeito ao modelo FIFO na liberação de espaço (teste `shouldRespectFifoOrderWhenAttendantBecomesAvailable`).
+### 3. TDD e Testcontainers
+A regra principal de fila e despacho (`TicketDispatcherService`) foi construída com TDD estrito. Os testes comprovaram o comportamento imediato de atribuição e o respeito ao modelo FIFO. 
+
+**Decisão Importante:** Optei por usar **Testcontainers** com PostgreSQL em vez de H2 para os testes. O comportamento de Lock Pessimista (`FOR UPDATE`) pode divergir drasticamente entre H2 e Postgres. Usando Testcontainers + `@DataJpaTest`, garantimos que o teste de integração seja uma representação 100% fiel da produção sem exigir do avaliador o trabalho manual de subir o banco antes de rodar um simples `mvn test`. O contexto do teste também foi fatiado para não carregar a aplicação web ou conectores AMQP desnecessários, melhorando a estabilidade.
 
 ### 4. Arquitetura Orientada a Eventos (EDA) e Real-time (STOMP)
 Para que o dashboard reflita tudo em tempo real, os microserviços foram desacoplados através de um **Event Bus com RabbitMQ**. Quando uma transação no banco é concluída (fase AFTER_COMMIT), o backend publica um evento no RabbitMQ. Um Listener captura esse evento e despacha via protocolo STOMP (sobre WebSockets, embarcado no Spring Boot) no tópico `/topic/dashboard`. O Frontend intercepta esse evento reativamente, garantindo um dashboard vivo, fluido e escalável horizontalmente.

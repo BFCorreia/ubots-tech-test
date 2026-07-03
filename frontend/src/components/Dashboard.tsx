@@ -230,6 +230,7 @@ export const Dashboard: React.FC = () => {
                 <th className="p-3">Assunto</th>
                 <th className="p-3">Time</th>
                 <th className="p-3">Atendente</th>
+                <th className="p-3">Duração</th>
               </tr>
             </thead>
             <tbody>
@@ -245,6 +246,11 @@ export const Dashboard: React.FC = () => {
                     </td>
                     <td className="p-3 text-[var(--color-text-muted)]">{TEAM_NAMES[t.team]}</td>
                     <td className="p-3 text-[var(--color-text-muted)]">{t.attendant?.name}</td>
+                    <td className="p-3 text-[var(--color-text-muted)]">
+                      {t.startedAt && t.finishedAt ? 
+                        formatDuration(Math.round((new Date(t.finishedAt).getTime() - new Date(t.startedAt).getTime()) / 1000)) 
+                        : '-'}
+                    </td>
                   </tr>
                 ))
               )}
@@ -289,6 +295,24 @@ export const Dashboard: React.FC = () => {
                 <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Time</div>
                 <div className="text-white">{TEAM_NAMES[selectedTicket.team]}</div>
               </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4 border-t border-[var(--color-border-subtle)] pt-4 mt-2">
+              <div>
+                <div className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Criado em</div>
+                <div className="text-sm text-[var(--color-text-secondary)]">{new Date(selectedTicket.createdAt).toLocaleTimeString()}</div>
+              </div>
+              {selectedTicket.startedAt && (
+                <div>
+                  <div className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Iniciado em</div>
+                  <div className="text-sm text-blue-400">{new Date(selectedTicket.startedAt).toLocaleTimeString()}</div>
+                </div>
+              )}
+              {selectedTicket.finishedAt && (
+                <div>
+                  <div className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Finalizado em</div>
+                  <div className="text-sm text-pink-400">{new Date(selectedTicket.finishedAt).toLocaleTimeString()}</div>
+                </div>
+              )}
             </div>
             <div>
               <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Descrição do Problema</div>

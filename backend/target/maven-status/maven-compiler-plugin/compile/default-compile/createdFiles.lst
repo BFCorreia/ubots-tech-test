@@ -4,6 +4,7 @@ com/flowpay/backend/domain/Attendant.class
 com/flowpay/backend/domain/Ticket.class
 com/flowpay/backend/dto/DashboardResponse.class
 com/flowpay/backend/config/DatabaseSeeder.class
+com/flowpay/backend/service/EventPublisher.class
 com/flowpay/backend/repository/AttendantRepository.class
 com/flowpay/backend/dto/AttendantCreateRequest.class
 com/flowpay/backend/domain/Ticket$TicketBuilder.class
@@ -18,11 +19,13 @@ com/flowpay/backend/service/AttendantService$1.class
 com/flowpay/backend/service/AttendantService.class
 com/flowpay/backend/dto/TicketResponse.class
 com/flowpay/backend/domain/TicketStatus.class
+com/flowpay/backend/listener/DashboardMessageListener.class
 com/flowpay/backend/controller/AttendantController.class
 com/flowpay/backend/service/TicketService.class
 com/flowpay/backend/domain/Team.class
 com/flowpay/backend/domain/Attendant$AttendantBuilder.class
 com/flowpay/backend/controller/TicketController.class
+com/flowpay/backend/config/RabbitMQConfig.class
 com/flowpay/backend/repository/TicketRepository.class
 com/flowpay/backend/BackendApplication.class
 com/flowpay/backend/service/TicketDispatcherService.class

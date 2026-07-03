@@ -30,8 +30,9 @@ export function useDashboard() {
     useEffect(() => {
         loadData();
 
+        const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws';
         const client = new Client({
-            webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+            webSocketFactory: () => new SockJS(wsUrl),
             reconnectDelay: 5000,
             onConnect: () => {
                 console.log('Connected to STOMP');
